@@ -18,11 +18,16 @@ import pytz
 sensor_type = Adafruit_DHT.AM2302
 
 #what sensors are connected to which pins, these labels determine which sensor_description is sent
-pins_to_read = { 4:'main_area', 24:'wardrobe', 23:'outside'}
-unit_description = 'camper'
+#pins_to_read = { 4:'outside', 24:'master_bedroom', 23:'master_ensuite'}
+pins_to_read = {24:'master_bedroom'}
+unit_description = 'victoria_street'
+data_file = 'data.json' #save data to where?
 
 #setup queue
 q = Queue.Queue()
+
+
+
 
 #This function is responsible for getting readings from the sensor specified in (pin) and adding them to the queue
 def collector(pin):
@@ -42,25 +47,20 @@ def collector(pin):
                 #print ("{s_key:",pin," temp:", readings[2]['t']," humid:",readings[2]['h']," time:", readings[2]['time'].isoformat(),"}")
 
                 q.put(reading_to_submit)
-                time.sleep(295)  #delay approx 5 mins
+                time.sleep(52)  #delay approx 1 mins
 
 def upload(item):
-        #setup request
-        #req = urllib2.Request('http://localhost:8010/temp-log-168303/us-central1/index')
-        req = urllib2.Request('https://us-central1-temp-log-168303.cloudfunctions.net/index')
-        req.add_header('Content-Type', 'application/json')
-
-        #translate item object to sendable format
-        data = { 'secret':1,
-                'unit_desc': unit_description,
+        #translate item object to saveable format
+        data = {'unit_desc': unit_description,
                 'sensor_desc': pins_to_read[item['s_key']],
                 'temperature': float('%.3f'%item['temp']),
                 'humidity': float('%.3f'%item['humid']),
                 'timestamp': item['time']
                 }
         #print 'Uploading item: ' + json.dumps(data, separators=(',',':'))
-        response = urllib2.urlopen(req, json.dumps(data, separators=(',',':')))
-
+        with open(data_file, 'w') as outfile:
+                json.dump(data, outfile)
+        
 #start collector(s) one for each sensor
 for k in pins_to_read:
         thread.start_new_thread(collector, (k,))
