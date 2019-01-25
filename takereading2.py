@@ -20,7 +20,7 @@ sensor_type = Adafruit_DHT.AM2302
 #pins_to_read = { 4:'outside', 24:'master_bedroom', 23:'master_ensuite'}
 pins_to_read = {24:'master_bedroom'}
 unit_description = 'victoria_street'
-data_file = 'data.json' #save data to where?
+data_file = 'data.tsv' #save data to where?
 
 #setup queue
 q = Queue.Queue()
@@ -61,7 +61,7 @@ def upload(item):
         #print 'Uploading item: ' + json.dumps(data, separators=(',',':'))
         print tsv_line 
         with open(data_file, 'a') as outfile:
-                outfile.write(tsv_line)
+                outfile.write(tsv_line + "\n")
         
 #start collector(s) one for each sensor
 for k in pins_to_read:
