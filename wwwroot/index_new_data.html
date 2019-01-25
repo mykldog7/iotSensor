@@ -61,11 +61,15 @@ d3.tsv("../data.tsv", function(error, data) {
   });
   
   x.domain(d3.extent(data, function(d) { return d.date; }));
-
+  /* 
   y.domain([
     d3.min(cities, function(c) { return d3.min(c.values, function(v) { return v.temperature; }); }),
     d3.max(cities, function(c) { return d3.max(c.values, function(v) { return v.temperature; }); })
   ]);
+  */
+  //Hardcoded y domain.
+  y.domain([0,35]);
+  
   svg.selectAll("*").remove();
   //LEGEND
   var legend = svg.selectAll('g')
