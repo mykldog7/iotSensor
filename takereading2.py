@@ -56,9 +56,12 @@ def upload(item):
                 'humidity': float('%.3f'%item['humid']),
                 'timestamp': item['time']
                 }
+                
+        tsv_line = "{0}\t{1}\t{2}\t{3}\t{4}".format(item['time'], unit_description, pins_to_read[item['s_key']], float('%.3f'%item['temp']), float('%.3f'%item['humid']))
         #print 'Uploading item: ' + json.dumps(data, separators=(',',':'))
+        print tsv_line 
         with open(data_file, 'a') as outfile:
-                json.dump(data, outfile)
+                outfile.write(tsv_line)
         
 #start collector(s) one for each sensor
 for k in pins_to_read:
