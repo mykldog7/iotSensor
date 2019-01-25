@@ -44,7 +44,7 @@ var svg = d3.select("body").append("svg")
 var filterData={"Austin":false,"New York":false,"temperature":true,"humidity":true};//cities to be shown
 
 function drawChart(filterData){
-d3.tsv("data2.tsv", function(error, data) {
+d3.tsv("./data/data2.tsv", function(error, data) {
   color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
 
   data.forEach(function(d) {
