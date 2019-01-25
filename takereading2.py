@@ -11,7 +11,6 @@ import thread
 import datetime
 import time
 import json
-import urllib2
 import pytz
 
 #type of sensor that we are working with
@@ -58,7 +57,7 @@ def upload(item):
                 'timestamp': item['time']
                 }
         #print 'Uploading item: ' + json.dumps(data, separators=(',',':'))
-        with open(data_file, 'w') as outfile:
+        with open(data_file, 'a') as outfile:
                 json.dump(data, outfile)
         
 #start collector(s) one for each sensor
