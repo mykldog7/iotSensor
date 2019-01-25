@@ -20,7 +20,7 @@ sensor_type = Adafruit_DHT.AM2302
 #pins_to_read = { 4:'outside', 24:'master_bedroom', 23:'master_ensuite'}
 pins_to_read = {24:'master_bedroom'}
 unit_description = 'victoria_street'
-data_file = 'data.tsv' #save data to where?
+data_file = './wwwroot/data/data2.tsv' #save data to where?
 
 #setup queue
 q = Queue.Queue()
