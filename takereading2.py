@@ -82,12 +82,16 @@ if file_exists(data_file):
 else:
         with open(data_file, "w") as outfile:
                 outfile.write(header_line + "\n")
+        print "Created new file with header:", header_line
+
 
 #start collector(s) one for each sensor
+print "Starting collector threads..."
 for k in pins_to_read:
         thread.start_new_thread(collector, (k,))
 
 #start sender/uploader
+print "Starting queue reader loop... "
 while True:
         try:
                 item = q.get(False)
