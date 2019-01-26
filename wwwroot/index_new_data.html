@@ -8,6 +8,7 @@
 <body>
 <script src="scripts/d3.v3.min.js"></script>
 <script>
+var load_data_from_file = "./data/data2.tsv";
 var margin = {top: 20, right: 80, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
@@ -41,10 +42,10 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   
-var filterData={"Austin":false,"New York":false,"temperature":true,"humidity":true};//cities to be shown
+var filterData={"unit_desc":false,"sensor_desc":false,"temperature":true,"humidity":true};//cities to be shown
 
 function drawChart(filterData){
-d3.tsv("./data/data2.tsv", function(error, data) {
+d3.tsv(load_data_from_file, function(error, data) {
   color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
 
   data.forEach(function(d) {

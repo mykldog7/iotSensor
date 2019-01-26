@@ -12,6 +12,7 @@ import datetime
 import time
 import json
 import pytz
+from itertools import (takewhile,repeat)
 
 #type of sensor that we are working with
 sensor_type = Adafruit_DHT.AM2302
@@ -24,9 +25,6 @@ data_file = './wwwroot/data/data2.tsv' #save data to where?
 
 #setup queue
 q = Queue.Queue()
-
-
-
 
 #This function is responsible for getting readings from the sensor specified in (pin) and adding them to the queue
 def collector(pin):
@@ -63,6 +61,14 @@ def upload(item):
         with open(data_file, 'a') as outfile:
                 outfile.write(tsv_line + "\n")
         
+#check that headers are in place in data file. (and that it exists)
+# from : https://stackoverflow.com/questions/845058/how-to-get-line-count-cheaply-in-python
+def rawincount(filename):
+    f = open(filename, 'rb')
+    bufgen = takewhile(lambda x: x, (f.raw.read(1024*1024) for _ in repeat(None)))
+    return sum( buf.count(b'\n') for buf in bufgen )
+print "Filelines:", rawincount(data_file)
+
 #start collector(s) one for each sensor
 for k in pins_to_read:
         thread.start_new_thread(collector, (k,))
