@@ -12,6 +12,7 @@ import datetime
 import time
 import json
 import pytz
+import os
 from itertools import (takewhile,repeat)
 
 #type of sensor that we are working with
@@ -22,6 +23,7 @@ sensor_type = Adafruit_DHT.AM2302
 pins_to_read = {24:'master_bedroom'}
 unit_description = 'victoria_street'
 data_file = './wwwroot/data/data2.tsv' #save data to where?
+header_line = "datetime\tunit_desc\tsensor_desc\ttemp\thumidity"
 
 #setup queue
 q = Queue.Queue()
@@ -64,11 +66,22 @@ def upload(item):
 #check that headers are in place in data file. (and that it exists)
 # from : https://stackoverflow.com/questions/845058/how-to-get-line-count-cheaply-in-python
 def file_len(fname):
-    with open(fname) as f:
-        for i, l in enumerate(f):
-            pass
-    return i + 1
-print "Filelines:", file_len(data_file)
+        with open(fname) as f:
+                for i, l in enumerate(f):
+                        pass
+        return i + 1
+def file_exists(fname):
+        return os.path.isfile(fname)
+
+#main check logic... 
+if file_exists(data_file):
+        print "Data file:", data_file, " contains:", file_len(data_file), " lines."
+        with open(data_file, "r") as f:
+                existing_header = f.readline()
+        print "Header:", existing_header
+else:
+        with open(data_file, "w") as outfile:
+                outfile.write(header_line + "\n")
 
 #start collector(s) one for each sensor
 for k in pins_to_read:
