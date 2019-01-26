@@ -63,11 +63,12 @@ def upload(item):
         
 #check that headers are in place in data file. (and that it exists)
 # from : https://stackoverflow.com/questions/845058/how-to-get-line-count-cheaply-in-python
-def rawincount(filename):
-    f = open(filename, 'rb')
-    bufgen = takewhile(lambda x: x, (f.raw.read(1024*1024) for _ in repeat(None)))
-    return sum( buf.count(b'\n') for buf in bufgen )
-print "Filelines:", rawincount(data_file)
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+print "Filelines:", file_len(data_file)
 
 #start collector(s) one for each sensor
 for k in pins_to_read:
