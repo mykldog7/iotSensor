@@ -34,47 +34,64 @@ var yAxis = d3.svg.axis()
 var line = d3.svg.line()
     .interpolate("linear")
     .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.temperature); });
+    .y(function(d) { return y(d.value); });
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-  
-var filterData={"unit_desc":false,"sensor_desc":false,"temperature":true,"humidity":true};//cities to be shown
+
+var filterData={"victoria_street master_bedroom temperature":true, "victoria_street master_bedroom humidity":true};//sensor_data_points to be shown
 
 function drawChart(filterData){
 d3.tsv(load_data_from_file, function(error, data) {
-  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+  console.log(data);
+  //color.domain(d3.keys(data[0]).filter(function(key) { return (key !== "datetime" && key !== "unit_desc" && key !== ); }));
+  //Each line needs its own colour.. 
+  var unit_sensors = data.map(function(d){ return d.unit_desc +" "+ d.sensor_desc; })
+  var unique_unit_sensors = Array.from(new Set(unit_sensors))
+  
+  //hacks: TODO fix.. so that it works in generalizable case.
+  unique_unit_sensors = [unique_unit_sensors[0] +" temperature", unique_unit_sensors[0] + " humidity"]
+
+  color.domain(unique_unit_sensors);
 
   data.forEach(function(d) {
-    d.date = parseDate(d.date);
+    d.datetime = parseDate(d.datetime);
   });
 
-  var cities = color.domain().map(function(name) {
-    return {
-      name: name,
-      values: data.map(function(d) {
-        return {date: d.date, temperature: +d[name]};
-      })
-    };
-  });
+  console.log("color domain:", color.domain());
+
+//build array of data points..  2 entries for each element of color.. (TODO fix this.. it should be the same not 2x)
+  var sensor_data_points = color.domain().map(function(name) {
+                return {
+                    name: name,
+                    values: (name.indexOf("temperature") >=0 )  //if its a temperature dataset provide temp values else provide humididty
+                        ? 
+                             (data.filter(function(d) {return d.unit_desc + " " + d.sensor_desc + " temperature"== name;})
+                                .map(function(d) {return {date: d.datetime, value: +d["temp"]};})) 
+                        :
+                             (data.filter(function(d) {return d.unit_desc + " " + d.sensor_desc +" humidity" == name;})
+                                .map(function(d) {return {date: d.datetime, value: +d["humidity"]};}))
+                };
+            });
+  console.log("sensor data points:", sensor_data_points);
   
-  x.domain(d3.extent(data, function(d) { return d.date; }));
+  x.domain(d3.extent(data, function(d) { return d.datetime; }));
   /* 
   y.domain([
-    d3.min(cities, function(c) { return d3.min(c.values, function(v) { return v.temperature; }); }),
-    d3.max(cities, function(c) { return d3.max(c.values, function(v) { return v.temperature; }); })
+    d3.min(sensor_data_points, function(c) { return d3.min(c.values, function(v) { return v.temperature; }); }),
+    d3.max(sensor_data_points, function(c) { return d3.max(c.values, function(v) { return v.temperature; }); })
   ]);
   */
   //Hardcoded y domain.
-  y.domain([0,35]);
+  y.domain([0,100]);
   
   svg.selectAll("*").remove();
   //LEGEND
   var legend = svg.selectAll('g')
-      .data(cities)
+      .data(sensor_data_points)
       .enter()
     .append('g')
       .attr('class', 'legend');
@@ -94,8 +111,7 @@ d3.tsv(load_data_from_file, function(error, data) {
       .attr('y', function(d, i){ return (i *  20) + 9;})
       .text(function(d){ return d.name; });
 
-  legend
-  		.on("click",function(d){
+  legend.on("click",function(d){
   				//filter data		
   				//filterData[d.name]=!filterData[d.name];
   				reDraw(d.name);
@@ -117,23 +133,23 @@ d3.tsv(load_data_from_file, function(error, data) {
       .style("text-anchor", "end")
       .text("Temperature (ºC)");
    
-  var boo=cities.filter(function(d){return filterData[d.name]==true;});
+  var boo=sensor_data_points.filter(function(d){return filterData[d.name]==true;});
   console.log("filter");
   console.log(boo);
   
   var city = svg.selectAll(".city")
-      .data(cities.filter(function(d){return filterData[d.name]==true;})) //.filter(function(d){return filterData[d.name]==true;})
+      .data(sensor_data_points.filter(function(d){return filterData[d.name]==true;})) //.filter(function(d){return filterData[d.name]==true;})
       .enter().append("g");
     //  .attr("class", "city");
       
-     console.log(city);  
+     console.log("test", city);  
       svg.selectAll(".city")
-      .data(cities.filter(function(d){return filterData[d.name]==true;}))//.filter(function(d){return filterData[d.name]==true;})
+      .data(sensor_data_points.filter(function(d){return filterData[d.name]==true;}))//.filter(function(d){return filterData[d.name]==true;})
       .append("g")
       .attr("class", "city");
       
       svg.selectAll(".city")
-      .data(cities.filter(function(d){return filterData[d.name]==true;}))
+      .data(sensor_data_points.filter(function(d){return filterData[d.name]==true;}))
       .exit()
       .remove();
   
@@ -144,12 +160,12 @@ d3.tsv(load_data_from_file, function(error, data) {
 
   city.append("text")
       .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.value) + ")"; })
       .attr("x", 3)
       .attr("dy", ".35em")
       .text(function(d) { return d.name; });
     svg.selectAll(".city")
-      .data(cities.filter(function(d){return filterData[d.name]==true;}))
+      .data(sensor_data_points.filter(function(d){return filterData[d.name]==true;}))
       .exit()
       .remove();
 });
