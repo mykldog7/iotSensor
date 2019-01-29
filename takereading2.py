@@ -20,8 +20,8 @@ sensor_type = Adafruit_DHT.AM2302
 
 #what sensors are connected to which pins, these labels determine which sensor_description is sent
 #pins_to_read = { 4:'outside', 24:'master_bedroom', 23:'master_ensuite'}
-pins_to_read = {24:'master_bedroom'}
-unit_description = 'victoria_street'
+pins_to_read = {23:'device', 24:'master', 25:'bathroom', 4:'outside'}
+unit_description = 'sensor'
 data_file = './wwwroot/data/data2.tsv' #save data to where?
 header_line = "datetime\tunit_desc\tsensor_desc\ttemp\thumidity"
 
@@ -100,3 +100,4 @@ while True:
                 pass
                 #print "Nothing in queue."
         time.sleep(4)
+
