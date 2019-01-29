@@ -1,0 +1,10 @@
+[Unit]
+Description=Temperature Data Collection Service
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python /home/pi/iotSensor/takereading2.py
+
+[Install]
+WantedBy=multi-user.target
